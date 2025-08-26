@@ -68,6 +68,14 @@
         overflow: scroll;
         scrollbar-width: none;
       }
+      .welcome-mssg{
+        color: lightgray;
+        text-align: center;
+      }
+      .loading-spinner{
+        height: 40px;
+        margin: -15px
+      }
     </style>
   </head>
   <body>
@@ -79,6 +87,18 @@
     <script src="https://unpkg.com/supersimpledev/babel.js"></script>
     <script src="https://unpkg.com/supersimpledev/chatbot.js"></script>
     <script type="text/babel">
+
+      function useAutoScroll(dependencies){
+       const chatMessagesRef = React.useRef(null)
+
+      React.useEffect(()=>{
+        const containerElem = chatMessagesRef.current
+        if(containerElem){
+          containerElem.scrollTop = containerElem.scrollHeight
+        }
+      } , dependencies)
+       return chatMessagesRef;
+      }
 
       function ChatInput({chatMessages,setChatMessages}){
        const [inputText, setInputText] = React.useState('')
@@ -111,7 +131,7 @@
           setChatMessages([
             ...newChatMessages,
             {
-              message : 'Loading...',
+              message : <img className= "loading-spinner" src="loading-spinner.gif"/>,
               sender : 'robot',
               id : crypto.randomUUID()
             }
@@ -164,14 +184,14 @@
       }
 
   function ChatMessages({chatMessages}){
-    const chatMessagesRef = React.useRef(null)
+ 
+    const chatMessagesRef = useAutoScroll([chatMessages])
 
-    React.useEffect(()=>{
-      const containerElem = chatMessagesRef.current
-      if(containerElem){
-        containerElem.scrollTop = containerElem.scrollHeight
-      }
-    } , [chatMessages])
+     if(chatMessages.length === 0){
+      return(
+        <p className="welcome-mssg">Welcome to the Chatbot Project! Send a message using the textbox below</p>
+      )
+    }
     
     return (
       <div className="chat-message-container" ref={chatMessagesRef}> 
